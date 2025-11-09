@@ -24,6 +24,16 @@
               <span class="cart-badge" id="cart-count">0</span>
             </a>
           </li>
+          {{#if isAuthenticated}}
+            <li class="nav-user-info">
+              <span class="nav-user-name">👤 {{user.first_name}}</span>
+              <button class="btn-logout" id="logoutBtn">Cerrar Sesión</button>
+            </li>
+          {{else}}
+            <li>
+              <a href="/login" class="nav-link btn-login">Iniciar Sesión</a>
+            </li>
+          {{/if}}
         </ul>
       </div>
     </nav>
@@ -37,5 +47,7 @@
     </script>
     <script src="/js/cart.js"></script>
     <script src="/js/product.js"></script>
+    <script src="/js/login.js"></script>
+    <script src="/js/register.js"></script>
   </body>
 </html>

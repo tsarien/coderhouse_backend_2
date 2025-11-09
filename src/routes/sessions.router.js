@@ -1,95 +1,95 @@
 import { Router } from "express";
+import jwt from "jsonwebtoken";
+import passport from "passport";
 import User from "../dao/models/user.model.js";
 import { generaHash, validaPass } from "../utils.js";
+import { auth } from "../middlewares/auth.js";
+import { passportCall } from "../utils.js"; // ✅ asegúrate de tener esta función en utils.js
 
 export const sessionsRouter = Router();
 
+// 🟢 Registro de usuario
 sessionsRouter.post("/register", async (req, res) => {
-  let { first_name, last_name, email, age, password } = req.body;
-  if (!first_name || !email || !password) {
-    res.setHeader("Content-Type", "application/json");
-    return res
-      .status(400)
-      .json({ error: `El primer nombre, email y contraseña son requeridos` });
-  }
-
-  password = generaHash(password);
-
   try {
-    let existe = await User.findOne({ email });
-    if (existe) {
-      res.setHeader("Content-Type", "application/json");
+    const { first_name, last_name, email, age, password } = req.body;
+    if (!first_name || !email || !password) {
       return res.status(400).json({
-        error: `El email ${email} ya esta en uso, para ${existe.nombre}`,
+        error: "El primer nombre, email y contraseña son requeridos.",
       });
     }
 
-    let nuevoUsuario = await User.create({
+    const existe = await User.findOne({ email });
+    if (existe) {
+      return res
+        .status(400)
+        .json({ error: `El email ${email} ya está en uso.` });
+    }
+
+    const nuevoUsuario = await User.create({
       first_name,
       last_name,
       email,
       age,
-      password,
+      password: generaHash(password),
     });
-    nuevoUsuario = nuevoUsuario.toJSON();
-    console.log(Object.keys(nuevoUsuario));
 
-    delete nuevoUsuario.password; // eliminar datos sensibles
+    const usuarioSinPassword = nuevoUsuario.toObject();
+    delete usuarioSinPassword.password;
 
-    res.setHeader("Content-Type", "application/json");
-    res.status(200).json({ message: `Registro exitoso`, nuevoUsuario });
+    res
+      .status(201)
+      .json({ message: "Registro exitoso", usuario: usuarioSinPassword });
   } catch (error) {
-    console.log(error);
-    res.setHeader("Content-Type", "application/json");
-    return res.status(500).json({ error: `Internal server error` });
+    console.error(error);
+    res.status(500).json({ error: "Error interno del servidor" });
   }
 });
 
-sessionsRouter.post("/login", async (req, res) => {
-  let { email, password } = req.body;
-  if (!email || !password) {
-    res.setHeader("Content-Type", "application/json");
-    return res
-      .status(400)
-      .json({ error: `El email y la  contraseña son requeridos` });
-  }
+// 🟢 Login con JWT
+sessionsRouter.post("/login", passportCall("login"), async (req, res) => {
+  const usuario = req.user.toObject();
+  delete usuario.password;
 
-  try {
-    let usuario = await User.findOne({ email }).lean();
-    if (!usuario) {
-      res.setHeader("Content-Type", "application/json");
-      return res.status(401).json({ error: `Credenciales invalidas` });
-    }
+  const token = jwt.sign(usuario, "CoderCoder123", { expiresIn: "1h" });
 
-    if (!validaPass(password, usuario.password)) {
-      res.setHeader("Content-Type", "application/json");
-      return res.status(401).json({ error: `Credenciales invalidas` });
-    }
-
-    delete usuario.password; // eliminar datos sensibles
-    req.session.usuario = usuario; // solo en logins...
-
-    res.setHeader("Content-Type", "application/json");
-    return res
-      .status(200)
-      .json({ payload: `Login exitoso para ${usuario.nombre}` });
-  } catch (error) {
-    console.log(error);
-    res.setHeader("Content-Type", "application/json");
-    return res.status(500).json({ error: `internal server error` });
-  }
+  res.cookie("tokenCookie", token, { httpOnly: true });
+  res.status(200).json({ message: "Login exitoso", usuario });
 });
 
+// 🟢 Ver perfil del usuario
+sessionsRouter.get(
+  "/usuario",
+  passportCall("current"),
+  auth(["user", "admin"]),
+  (req, res) => {
+    res.status(200).json({
+      mensaje: `Perfil del usuario: ${req.user.first_name}`,
+      usuario: req.user,
+    });
+  }
+);
+
+// 🟢 Ruta pública
+sessionsRouter.get("/public", auth(["public"]), (req, res) => {
+  res.status(200).json({ mensaje: "Ruta pública accesible" });
+});
+
+// 🟢 Ruta admin
+sessionsRouter.get(
+  "/admin",
+  passportCall("current"),
+  auth(["admin"]),
+  (req, res) => {
+    res.status(200).json({
+      mensaje: `Acceso de administrador: ${req.user.first_name}`,
+    });
+  }
+);
+
+// 🟢 Logout
 sessionsRouter.get("/logout", (req, res) => {
-  req.session.destroy((error) => {
-    if (error) {
-      res.setHeader("Content-Type", "application/json");
-      return res.status(500).json({ error: `Error al realizar logout` });
-    }
-
-    res.setHeader("Content-Type", "application/json");
-    return res.status(200).json({ payload: "Logout exitoso...!!!" });
-  });
+  res.clearCookie("tokenCookie");
+  res.status(200).json({ message: "Logout exitoso" });
 });
 
 export default sessionsRouter;

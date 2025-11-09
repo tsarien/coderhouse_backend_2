@@ -143,6 +143,10 @@ viewsRouter.get("/login", (req, res) => {
   res.status(200).render("login");
 });
 
+viewsRouter.get("/register", (req, res) => {
+  res.status(200).render("register");
+});
+
 viewsRouter.get("/perfil", auth, (req, res) => {
   res.status(200).render("perfil", {
     nombre: req.user.nombre,
