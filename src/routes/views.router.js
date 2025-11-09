@@ -1,6 +1,7 @@
 import express from "express";
-import Product from "../models/product.model.js";
-import Cart from "../models/cart.model.js";
+import Product from "../dao/models/product.model.js";
+import Cart from "../dao/models/cart.model.js";
+import { auth } from "../middlewares/auth.js";
 
 const viewsRouter = express.Router();
 
@@ -136,6 +137,17 @@ viewsRouter.get("/carts/:cid", async (req, res) => {
       error: error.message,
     });
   }
+});
+
+viewsRouter.get("/login", (req, res) => {
+  res.status(200).render("login");
+});
+
+viewsRouter.get("/perfil", auth, (req, res) => {
+  res.status(200).render("perfil", {
+    nombre: req.user.nombre,
+    email: req.user.email,
+  });
 });
 
 export default viewsRouter;

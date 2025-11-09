@@ -6,36 +6,47 @@ import dotenv from "dotenv";
 import cartRouter from "./routes/carts.router.js";
 import { engine } from "express-handlebars";
 import viewsRouter from "./routes/views.router.js";
-import __dirname from "../dirname.js";
+import sessionsRouter from "./routes/sessions.router.js";
+import session from "express-session";
+import connectMongo from "connect-mongo";
+import { config } from "./config/config.js";
+import __dirname from "./utils.js";
 
-// Inicializamos las variables de entorno
 dotenv.config();
 
-const app = express();
 const PORT = process.env.PORT;
+
+const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
 
-// Corrección a la ruta del carrito
-app.use((req, res, next) => {
-  res.locals.cartId = req.session?.cartId || "690082ed4787653bbf9b8153";
-  next();
-});
-
 // Handlebars
 app.engine("handlebars", engine());
 app.set("view engine", "handlebars");
-app.set("views", path.join(__dirname, "src/views"));
-
-// Conexión a MongoDB
-connectMongoDB();
+app.set("views", path.join(__dirname, "views"));
 
 app.use("/api/products", productsRouter);
 app.use("/api/carts", cartRouter);
+app.use("/api/sessions", sessionsRouter);
 app.use("/", viewsRouter);
+
+app.use(
+  session({
+    secret: config.SECRET_SESSION,
+    resave: true,
+    saveUninitialized: true,
+    store: connectMongo.create({
+      mongoUrl: config.MONGO_URL,
+      ttl: 3600,
+    }),
+  })
+);
 
 app.listen(PORT, () => {
   console.log(`Servidor iniciado correctamente en http://localhost:${PORT}`);
 });
+
+// Conexión a MongoDB
+connectMongoDB();
