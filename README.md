@@ -28,13 +28,13 @@ Implementar en el proyecto ecommerce facilitado al inicio del curso un CRUD de u
 
 Crear un modelo User que contenga los siguientes campos:
 
-- first_name: String
-- last_name: String
-- email: String (debe ser único)
-- age: Number
-- password: String (en formato hash)
-- cart: Id con referencia a Carts
-- role: String (valor por defecto: 'user')
+- first_name: `String`
+- last_name: `String`
+- email: `String` (debe ser único)
+- age: `Number`
+- password: `String` (en formato hash)
+- cart: `Id` con referencia a Carts
+- role: `String` (valor por defecto: `user`)
 
 ### 2. Encriptacion de Contraseña:
 
