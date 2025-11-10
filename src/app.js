@@ -17,10 +17,11 @@ import cartRouter from "./routes/carts.router.js";
 import sessionsRouter from "./routes/sessions.router.js";
 import viewsRouter from "./routes/views.router.js";
 import { userToView } from "./middlewares/auth.js";
+import { getOrCreateCart } from "./middlewares/cart.js";
 
 dotenv.config();
 const app = express();
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT;
 
 app.use(cookieParser());
 app.use(express.json());
@@ -47,6 +48,7 @@ app.set("view engine", "handlebars");
 app.set("views", path.join(__dirname, "views"));
 
 app.use(userToView);
+app.use(getOrCreateCart);
 
 app.use("/api/products", productsRouter);
 app.use("/api/carts", cartRouter);
@@ -54,7 +56,7 @@ app.use("/api/sessions", sessionsRouter);
 app.use("/", viewsRouter);
 
 app.listen(PORT, () =>
-  console.log(`✅ Servidor iniciado en http://localhost:${PORT}`)
+  console.log(`Servidor iniciado en http://localhost:${PORT}`)
 );
 
 connectMongoDB();

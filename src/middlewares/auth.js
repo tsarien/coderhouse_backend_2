@@ -62,13 +62,16 @@ export const userToView = (req, res, next) => {
   if (token) {
     try {
       const usuario = jwt.verify(token, SECRET_KEY);
+      req.user = usuario;
       res.locals.user = usuario;
       res.locals.isAuthenticated = true;
     } catch (error) {
+      req.user = null;
       res.locals.user = null;
       res.locals.isAuthenticated = false;
     }
   } else {
+    req.user = null;
     res.locals.user = null;
     res.locals.isAuthenticated = false;
   }

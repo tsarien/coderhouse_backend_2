@@ -14,6 +14,7 @@
 
         <ul class="nav-menu">
           <li><a href="/" class="nav-link">Productos</a></li>
+          {{#if cartId}}
           <li>
             <a
               href="/carts/{{cartId}}"
@@ -24,6 +25,7 @@
               <span class="cart-badge" id="cart-count">0</span>
             </a>
           </li>
+          {{/if}}
           {{#if isAuthenticated}}
             <li class="nav-user-info">
               <span class="nav-user-name">👤 {{user.first_name}}</span>
@@ -43,7 +45,7 @@
     </main>
 
     <script>
-      const cartId = "{{cartId}}";
+      const cartId = {{#if cartId}}"{{cartId}}"{{else}}null{{/if}};
     </script>
     <script src="/js/cart.js"></script>
     <script src="/js/product.js"></script>

@@ -108,14 +108,22 @@ viewsRouter.get("/products/:pid", async (req, res) => {
 
 viewsRouter.get("/carts/:cid", async (req, res) => {
   try {
+    // Validar que el cid no esté vacío
+    if (!req.params.cid || req.params.cid.trim() === "") {
+      return res.status(400).send("ID de carrito inválido");
+    }
+
     const cart = await Cart.findById(req.params.cid)
       .populate("products.product")
       .lean();
 
-    if (!cart)
-      return res.status(404).send({ message: "Carrito no encontrado" });
+    if (!cart) {
+      return res.status(404).send("Carrito no encontrado");
+    }
 
-    const productsWithSubtotal = cart.products.map((item) => {
+    const validProducts = cart.products.filter((item) => item.product !== null);
+
+    const productsWithSubtotal = validProducts.map((item) => {
       const subtotal = item.product.price * item.quantity;
       return { ...item, subtotal: subtotal.toFixed(2) };
     });
@@ -129,21 +137,24 @@ viewsRouter.get("/carts/:cid", async (req, res) => {
       cartId: req.params.cid,
       products: productsWithSubtotal,
       total: total.toFixed(2),
-      hasProducts: cart.products.length > 0,
+      hasProducts: productsWithSubtotal.length > 0,
     });
   } catch (error) {
-    res.status(500).send({
-      message: "Error al cargar el carrito",
-      error: error.message,
-    });
+    console.error("Error al cargar el carrito:", error);
+    if (error.name === "CastError") {
+      return res.status(400).send("ID de carrito inválido");
+    }
+    res.status(500).send("Error al cargar el carrito: " + error.message);
   }
 });
 
 viewsRouter.get("/login", (req, res) => {
+  if (req.user) return res.redirect("/perfil");
   res.status(200).render("login");
 });
 
 viewsRouter.get("/register", (req, res) => {
+  if (req.user) return res.redirect("/perfil");
   res.status(200).render("register");
 });
 

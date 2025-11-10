@@ -1,24 +1,43 @@
 async function updateCartLink() {
   const cartCount = document.getElementById("cart-count");
 
+  if (
+    !cartId ||
+    cartId === "null" ||
+    cartId === "undefined" ||
+    cartId.trim() === ""
+  ) {
+    console.warn("cartId no está definido, no se puede actualizar el carrito");
+    if (cartCount) {
+      cartCount.style.display = "none";
+    }
+    return;
+  }
+
   try {
     const response = await fetch(`/api/carts/${cartId}`);
     const data = await response.json();
 
-    if (data.status === "success") {
-      const totalItems = data.payload.reduce(
-        (sum, item) => sum + item.quantity,
-        0
-      );
-      cartCount.textContent = totalItems;
-      cartCount.style.display = totalItems > 0 ? "inline-block" : "none";
+    if (data.status === "success" && data.payload) {
+      const totalItems = Array.isArray(data.payload)
+        ? data.payload.reduce((sum, item) => sum + (item.quantity || 0), 0)
+        : 0;
+      if (cartCount) {
+        cartCount.textContent = totalItems;
+        cartCount.style.display = totalItems > 0 ? "inline-block" : "none";
+      }
     }
   } catch (error) {
     console.error("Error al actualizar carrito:", error);
+    if (cartCount) {
+      cartCount.style.display = "none";
+    }
   }
 }
 
-updateCartLink();
+if (typeof cartId !== "undefined") {
+  updateCartLink();
+}
 
 async function updateQuantity(cartId, productId, currentQuantity, change) {
   const newQuantity = currentQuantity + change;
