@@ -1,4 +1,4 @@
-# ![Programación Backend II: Desarrollo Avanzado de Backend](https://img.shields.io/badge/CURSO%3A-%20PROGRAMACION%20BACKEND%20I-orange?style=plastic&logo=codementor)
+# ![Programación Backend II: Desarrollo Avanzado de Backend](https://img.shields.io/badge/CURSO%3A-%20PROGRAMACION%20BACKEND%20II-green?style=plastic&logo=codementor)
 
 ## Coderhouse - Comision 77260
 
@@ -21,6 +21,8 @@
 Implementar en el proyecto ecommerce facilitado al inicio del curso un CRUD de usuarios, junto con un sistema de Autenticación y Autorización.
 
 ### Aspectos a incluir:
+
+---
 
 ### 1. Modelo de Usuario:
 
