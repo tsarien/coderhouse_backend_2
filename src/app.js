@@ -22,13 +22,11 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 8080;
 
-// Middleware base
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
 
-// Sesiones (Mongo Store)
 app.use(
   session({
     secret: config.SECRET_SESSION,
@@ -41,28 +39,22 @@ app.use(
   })
 );
 
-// Passport
 initPassport();
 app.use(passport.initialize());
 
-// Handlebars
 app.engine("handlebars", engine());
 app.set("view engine", "handlebars");
 app.set("views", path.join(__dirname, "views"));
 
-// Middleware para pasar usuario a las vistas
 app.use(userToView);
 
-// Rutas
 app.use("/api/products", productsRouter);
 app.use("/api/carts", cartRouter);
 app.use("/api/sessions", sessionsRouter);
 app.use("/", viewsRouter);
 
-// Servidor
 app.listen(PORT, () =>
   console.log(`✅ Servidor iniciado en http://localhost:${PORT}`)
 );
 
-// Conexión a MongoDB
 connectMongoDB();

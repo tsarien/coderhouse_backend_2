@@ -1,4 +1,9 @@
 import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+
+dotenv.config();
+
+const SECRET_KEY = process.env.JWT_SECRET;
 
 export const auth = (permisos = []) => {
   return (req, res, next) => {
@@ -11,7 +16,6 @@ export const auth = (permisos = []) => {
 
     permisos = permisos.map((p) => p.toLowerCase());
 
-    // Rutas públicas
     if (permisos.includes("public")) return next();
 
     const token = req.cookies?.tokenCookie;
@@ -20,7 +24,7 @@ export const auth = (permisos = []) => {
     }
 
     try {
-      const usuario = jwt.verify(token, "CoderCoder123");
+      const usuario = jwt.verify(token, SECRET_KEY);
       req.user = usuario;
     } catch (error) {
       return res
@@ -53,12 +57,11 @@ export const authUser = (req, res, next) => {
   next();
 };
 
-// Middleware para pasar el usuario autenticado a las vistas (no bloquea si no hay token)
 export const userToView = (req, res, next) => {
   const token = req.cookies?.tokenCookie;
   if (token) {
     try {
-      const usuario = jwt.verify(token, "CoderCoder123");
+      const usuario = jwt.verify(token, SECRET_KEY);
       res.locals.user = usuario;
       res.locals.isAuthenticated = true;
     } catch (error) {

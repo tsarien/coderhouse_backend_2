@@ -1,10 +1,15 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 import { Router } from "express";
 import jwt from "jsonwebtoken";
 import passport from "passport";
 import User from "../dao/models/user.model.js";
 import { generaHash, validaPass } from "../utils.js";
 import { auth } from "../middlewares/auth.js";
-import { passportCall } from "../utils.js"; // ✅ asegúrate de tener esta función en utils.js
+import { passportCall } from "../utils.js";
+
+const SECRET_KEY = process.env.JWT_SECRET;
 
 export const sessionsRouter = Router();
 
@@ -50,7 +55,7 @@ sessionsRouter.post("/login", passportCall("login"), async (req, res) => {
   const usuario = req.user.toObject();
   delete usuario.password;
 
-  const token = jwt.sign(usuario, "CoderCoder123", { expiresIn: "1h" });
+  const token = jwt.sign(usuario, SECRET_KEY, { expiresIn: "1h" });
 
   res.cookie("tokenCookie", token, { httpOnly: true });
   res.status(200).json({ message: "Login exitoso", usuario });

@@ -1,7 +1,6 @@
-// Manejo del botón de logout
 document.addEventListener("DOMContentLoaded", () => {
   const logoutBtn = document.getElementById("logoutBtn");
-  
+
   if (logoutBtn) {
     logoutBtn.addEventListener("click", async () => {
       try {
@@ -11,7 +10,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         if (response.ok) {
-          // Redirigir a la página principal después del logout
           window.location.href = "/";
         } else {
           const data = await response.json();
@@ -24,7 +22,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Manejo del formulario de login si existe
   const loginForm = document.getElementById("loginForm");
   if (loginForm) {
     loginForm.addEventListener("submit", async (e) => {
@@ -46,7 +43,6 @@ document.addEventListener("DOMContentLoaded", () => {
         const data = await response.json();
 
         if (response.ok) {
-          // Redirigir a la página principal después del login exitoso
           window.location.href = "/";
         } else {
           alert(data.error || "Error al iniciar sesión");
@@ -58,4 +54,3 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
-

@@ -1,8 +1,13 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
 import { Strategy as JWTStrategy, ExtractJwt } from "passport-jwt";
 import bcrypt from "bcrypt";
 import User from "../dao/models/user.model.js";
+
+const SECRET_KEY = process.env.JWT_SECRET;
 
 const buscarToken = (req) => req?.cookies?.tokenCookie || null;
 
@@ -12,7 +17,7 @@ export const initPassport = () => {
     "current",
     new JWTStrategy(
       {
-        secretOrKey: "CoderCoder123",
+        secretOrKey: SECRET_KEY,
         jwtFromRequest: ExtractJwt.fromExtractors([buscarToken]),
       },
       async (usuario, done) => {

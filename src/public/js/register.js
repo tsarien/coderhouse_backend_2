@@ -1,4 +1,3 @@
-// Manejo del formulario de registro
 document.addEventListener("DOMContentLoaded", () => {
   const registerForm = document.getElementById("registerForm");
 
