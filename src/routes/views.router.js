@@ -108,7 +108,6 @@ viewsRouter.get("/products/:pid", async (req, res) => {
 
 viewsRouter.get("/carts/:cid", async (req, res) => {
   try {
-    // Validar que el cid no esté vacío
     if (!req.params.cid || req.params.cid.trim() === "") {
       return res.status(400).send("ID de carrito inválido");
     }

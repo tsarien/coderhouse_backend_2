@@ -8,11 +8,11 @@ import bcrypt from "bcrypt";
 import User from "../dao/models/user.model.js";
 
 const SECRET_KEY = process.env.JWT_SECRET;
+if (!SECRET_KEY) throw new Error("JWT_SECRET no está definido");
 
 const buscarToken = (req) => req?.cookies?.tokenCookie || null;
 
 export const initPassport = () => {
-  // Estrategia JWT (verifica usuarios autenticados con token)
   passport.use(
     "current",
     new JWTStrategy(
@@ -20,24 +20,20 @@ export const initPassport = () => {
         secretOrKey: SECRET_KEY,
         jwtFromRequest: ExtractJwt.fromExtractors([buscarToken]),
       },
-      async (usuario, done) => {
+      async (payload, done) => {
         try {
-          // Ejemplo de restricción temporal
-          if (usuario.first_name === "Martin") {
-            return done(null, false, {
-              message:
-                "El usuario Martin tiene temporalmente el acceso inhabilitado. Contacte a RRHH.",
-            });
+          if (payload.exp && Date.now() / 1000 > payload.exp) {
+            return done(null, false, { message: "El token ha expirado." });
           }
-          return done(null, usuario);
+          return done(null, payload);
         } catch (error) {
+          console.error("Error en estrategia JWT:", error);
           return done(error);
         }
       }
     )
   );
 
-  // Estrategia Local (login con email y contraseña)
   passport.use(
     "login",
     new LocalStrategy(
@@ -62,7 +58,6 @@ export const initPassport = () => {
     )
   );
 
-  // Serialización de usuario (requerida por Passport)
   passport.serializeUser((usuario, done) => {
     done(null, usuario._id);
   });

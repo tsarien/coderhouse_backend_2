@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const SECRET_KEY = process.env.JWT_SECRET;
+if (!SECRET_KEY) throw new Error("JWT_SECRET no está definido");
 
 export const auth = (permisos = []) => {
   return (req, res, next) => {
@@ -13,16 +14,13 @@ export const auth = (permisos = []) => {
           "Permisos de la ruta mal configurados. Contacte al administrador.",
       });
     }
-
     permisos = permisos.map((p) => p.toLowerCase());
-
     if (permisos.includes("public")) return next();
 
     const token = req.cookies?.tokenCookie;
     if (!token) {
       return res.status(401).json({ error: "No hay usuarios autenticados" });
     }
-
     try {
       const usuario = jwt.verify(token, SECRET_KEY);
       req.user = usuario;
@@ -31,14 +29,12 @@ export const auth = (permisos = []) => {
         .status(401)
         .json({ error: "Credenciales inválidas", detalle: error.message });
     }
-
     if (!permisos.includes(req.user.role?.toLowerCase())) {
       return res.status(403).json({
         error:
           "No tiene privilegios suficientes para acceder al recurso solicitado.",
       });
     }
-
     return next();
   };
 };

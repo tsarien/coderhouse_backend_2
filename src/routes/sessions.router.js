@@ -10,10 +10,14 @@ import { auth } from "../middlewares/auth.js";
 import { passportCall } from "../utils.js";
 
 const SECRET_KEY = process.env.JWT_SECRET;
+if (!SECRET_KEY) {
+  throw new Error(
+    "Falta la clave secreta para JWT en las variables de entorno"
+  );
+}
 
 export const sessionsRouter = Router();
 
-// 🟢 Registro de usuario
 sessionsRouter.post("/register", async (req, res) => {
   try {
     const { first_name, last_name, email, age, password } = req.body;
@@ -50,7 +54,6 @@ sessionsRouter.post("/register", async (req, res) => {
   }
 });
 
-// 🟢 Login con JWT
 sessionsRouter.post("/login", passportCall("login"), async (req, res) => {
   const usuario = req.user.toObject();
   delete usuario.password;
@@ -61,7 +64,6 @@ sessionsRouter.post("/login", passportCall("login"), async (req, res) => {
   res.status(200).json({ message: "Login exitoso", usuario });
 });
 
-// 🟢 Ver perfil del usuario
 sessionsRouter.get(
   "/usuario",
   passportCall("current"),
@@ -74,12 +76,10 @@ sessionsRouter.get(
   }
 );
 
-// 🟢 Ruta pública
 sessionsRouter.get("/public", auth(["public"]), (req, res) => {
   res.status(200).json({ mensaje: "Ruta pública accesible" });
 });
 
-// 🟢 Ruta admin
 sessionsRouter.get(
   "/admin",
   passportCall("current"),
@@ -91,7 +91,18 @@ sessionsRouter.get(
   }
 );
 
-// 🟢 Logout
+sessionsRouter.get(
+  "/current",
+  passportCall("current"),
+  auth(["user", "admin"]),
+  (req, res) => {
+    res.status(200).json({
+      mensaje: `Usuario autenticado: ${req.user.first_name}`,
+      usuario: req.user,
+    });
+  }
+);
+
 sessionsRouter.get("/logout", (req, res) => {
   res.clearCookie("tokenCookie");
   res.status(200).json({ message: "Logout exitoso" });
