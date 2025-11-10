@@ -20,9 +20,7 @@
 
 Implementar en el proyecto ecommerce facilitado al inicio del curso un CRUD de usuarios, junto con un sistema de Autenticación y Autorización.
 
-### Aspectos a incluir:
-
----
+## Aspectos a incluir:
 
 ### 1. Modelo de Usuario:
 
