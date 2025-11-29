@@ -141,3 +141,28 @@ async function clearCart(cartId) {
     alert("Error al vaciar el carrito. Verifica tu conexión.");
   }
 }
+
+async function generateTicket() {
+  if (!confirm("¿Confirmas que deseas finalizar la compra?")) {
+    return;
+  }
+
+  try {
+    const response = await fetch("/api/ticket/generate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      // Redirigir a página de éxito con el ID del ticket
+      window.location.href = `/ticket/success/${data.payload._id}`;
+    } else {
+      alert(`Error: ${data.error || "No se pudo generar el ticket"}`);
+    }
+  } catch (error) {
+    console.error("Error:", error);
+    alert("Error al generar el ticket. Verifica tu conexión.");
+  }
+}

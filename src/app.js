@@ -18,6 +18,7 @@ import sessionsRouter from "./routes/sessions.router.js";
 import viewsRouter from "./routes/views.router.js";
 import { userToView } from "./middlewares/auth.js";
 import { getOrCreateCart } from "./middlewares/cart.js";
+import ticketRouter from "./routes/tickets.router.js";
 
 dotenv.config();
 const app = express();
@@ -53,6 +54,7 @@ app.use(getOrCreateCart);
 app.use("/api/products", productsRouter);
 app.use("/api/carts", cartRouter);
 app.use("/api/sessions", sessionsRouter);
+app.use("/api/ticket", ticketRouter);
 app.use("/", viewsRouter);
 
 app.listen(PORT, () =>

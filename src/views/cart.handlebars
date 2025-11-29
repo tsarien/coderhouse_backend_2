@@ -79,6 +79,15 @@
           <button onclick="clearCart('{{cartId}}')" class="btn-clear-cart">
             Vaciar carrito
           </button>
+          {{#if isAuthenticated}}
+            <button onclick="generateTicket()" class="btn-checkout">
+              🎉 Finalizar Compra
+            </button>
+          {{else}}
+            <a href="/login" class="btn-checkout">
+              Inicia sesión para comprar
+            </a>
+          {{/if}}
         </div>
       </div>
     {{else}}

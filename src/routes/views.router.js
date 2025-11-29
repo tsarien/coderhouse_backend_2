@@ -164,4 +164,37 @@ viewsRouter.get("/perfil", auth, (req, res) => {
   });
 });
 
+viewsRouter.get("/forgot-password", (req, res) => {
+  if (req.user) return res.redirect("/");
+  res.status(200).render("forgotPassword");
+});
+
+import Ticket from "../dao/models/ticket.model.js";
+import { showResetPasswordForm } from "../controllers/password.controller.js";
+
+viewsRouter.get("/reset-password/:token", showResetPasswordForm);
+
+viewsRouter.get("/ticket/success/:tid", auth, async (req, res) => {
+  try {
+    const ticket = await Ticket.findById(req.params.tid)
+      .populate("purchaser")
+      .populate("products.product")
+      .lean();
+
+    if (!ticket) {
+      return res.status(404).send("Ticket no encontrado");
+    }
+
+    // Verificar que el ticket pertenece al usuario actual
+    if (ticket.purchaser._id.toString() !== req.user._id) {
+      return res.status(403).send("No tienes permiso para ver este ticket");
+    }
+
+    res.render("ticketSuccess", { ticket });
+  } catch (error) {
+    console.error("Error al cargar el ticket:", error);
+    res.status(500).send("Error al cargar el ticket: " + error.message);
+  }
+});
+
 export default viewsRouter;
