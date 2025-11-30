@@ -113,11 +113,14 @@ El middleware de autorización se integra perfectamente con la estrategia "curre
 ### Modelo de Ticket y Lógica de Compra:
 
 El modelo Ticket se crea correctamente con todos los campos necesarios y se implementa una lógica de compra robusta que verifica el stock de los productos, genera tickets y maneja compras completas e incompletas de manera eficiente.
+| `home.handlebars` | `productDetail.handlebars` |
+| :---------------: | :------------------------: |
+| <img src="./src/public/img/readme/home.png" alt="home" width="400"> | <img src="./src/public/img/readme/productDetail.png" alt="detalle-producto" width="400"> |
 
-|                              `home.handlebars`                              |                                `productDetail.handlebars`                                |
-| :-------------------------------------------------------------------------: | :--------------------------------------------------------------------------------------: |
-|     <img src="./src/public/img/readme/home.png" alt="home" width="400">     | <img src="./src/public/img/readme/productDetail.png" alt="detalle-producto" width="400"> |
-|                            **`cart.handlebars`**                            |                                  **`login.handlebars`**                                  |
-|     <img src="./src/public/img/readme/cart.png" alt="cart" width="400">     |          <img src="./src/public/img/readme/login.png" alt="login" width="400">           |
-|                          **`register.handlebars`**                          |                                                                                          |
-| <img src="./src/public/img/readme/register.png" alt="register" width="400"> |                                                                                          |
+| `cart.handlebars` | `login.handlebars` |
+| :---------------: | :----------------: |
+| <img src="./src/public/img/readme/cart.png" alt="cart" width="400"> | <img src="./src/public/img/readme/login.png" alt="login" width="400"> |
+
+| `register.handlebars` | `forgotPassword.handlebars` |
+| :-------------------: | :-------------------------: |
+| <img src="./src/public/img/readme/register.png" alt="register" width="400"> | <img src="./src/public/img/readme/forgotPassword.png" alt="forgotPassword" width="400"> |
