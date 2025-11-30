@@ -1,4 +1,3 @@
-// Forgot Password Form Handler
 const forgotPasswordForm = document.getElementById("forgotPasswordForm");
 const messageDiv = document.getElementById("message");
 
@@ -9,7 +8,6 @@ if (forgotPasswordForm) {
     const email = document.getElementById("email").value;
     const submitBtn = forgotPasswordForm.querySelector('button[type="submit"]');
 
-    // Deshabilitar botón y mostrar loading
     submitBtn.disabled = true;
     submitBtn.textContent = "Enviando...";
     messageDiv.innerHTML = "";
@@ -44,7 +42,7 @@ if (forgotPasswordForm) {
       console.error("Error:", error);
       messageDiv.innerHTML = `
         <p style="color: var(--color-danger); font-weight: 600;">
-          ❌ Error de conexión. Verifica tu internet.
+          ❌ Error de conexión.
         </p>
       `;
     } finally {

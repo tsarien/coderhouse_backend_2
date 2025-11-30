@@ -1,4 +1,3 @@
-// controllers/ticket.controller.js
 import TicketService from "../service/ticket.service.js";
 
 const ticketService = new TicketService();
@@ -36,11 +35,11 @@ export default class TicketController {
     try {
       const ticket = await ticketService.getTicket(req.params.tid);
       if (!ticket)
-        return res.status(404).json({ error: "Ticket no encontrado" });
+        return res.status(404).json({ status:"error", message: "Ticket no encontrado" });
 
       res.json({ status: "success", payload: ticket });
     } catch (error) {
-      res.status(500).json({ status: "error", error: error.message });
+      res.status(500).json({ status: "error", message: "Error al obtener el ticket", error: error.message });
     }
   }
 
@@ -49,7 +48,7 @@ export default class TicketController {
       const tickets = await ticketService.getAllTickets();
       res.json({ status: "success", payload: tickets });
     } catch (error) {
-      res.status(500).json({ status: "error", error: error.message });
+      res.status(500).json({ status: "error", message: "Error al obtener los tickets", error: error.message });
     }
   }
 
@@ -57,11 +56,11 @@ export default class TicketController {
     try {
       const deleted = await ticketService.deleteTicket(req.params.tid);
       if (!deleted)
-        return res.status(404).json({ error: "Ticket no encontrado" });
+        return res.status(404).json({ status:"error", message: "Ticket no encontrado" });
 
       res.json({ status: "success", message: "Ticket eliminado" });
     } catch (error) {
-      res.status(500).json({ status: "error", error: error.message });
+      res.status(500).json({ status: "error", message: "Error al eliminar el ticket", error: error.message });
     }
   }
 
@@ -71,12 +70,12 @@ export default class TicketController {
       if (!status) {
         return res
           .status(400)
-          .json({ status: "error", error: "El campo status es requerido" });
+          .json({ status: "error", message: "El campo status es requerido" });
       }
 
       const ticket = await ticketService.updateStatus(req.params.tid, status);
       if (!ticket)
-        return res.status(404).json({ error: "Ticket no encontrado" });
+        return res.status(404).json({ status:"error", message: "Ticket no encontrado" });
 
       res.json({
         status: "success",
@@ -84,7 +83,7 @@ export default class TicketController {
         payload: ticket,
       });
     } catch (error) {
-      res.status(400).json({ status: "error", error: error.message });
+      res.status(400).json({ status: "error", message: "Error al actualizar el estado del ticket", error: error.message });
     }
   }
 }

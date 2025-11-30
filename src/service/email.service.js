@@ -1,13 +1,12 @@
 import nodemailer from "nodemailer";
-import dotenv from "dotenv";
-dotenv.config();
+import { config } from "../config/config.js";
 
 export const sendResetPasswordEmail = async (email, resetLink) => {
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
-      user: process.env.MAIL_USER,
-      pass: process.env.MAIL_PASS,
+      user: config.MAIL_USER,
+      pass: config.MAIL_PASS,
     },
   });
 
@@ -23,7 +22,7 @@ export const sendResetPasswordEmail = async (email, resetLink) => {
   `;
 
   await transporter.sendMail({
-    from: process.env.MAIL_USER,
+    from: config.MAIL_USER,
     to: email,
     subject: "Recuperación de contraseña",
     html: content,

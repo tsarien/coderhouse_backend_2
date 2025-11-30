@@ -8,7 +8,7 @@ export default class UserController {
       const usuario = await userService.getUserById(req.params.uid);
       res.json(usuario);
     } catch (error) {
-      res.status(404).json({ error: error.message });
+      res.status(404).json({ status: "error", message: "Error al obtener el usuario", error: error.message });
     }
   }
 
@@ -17,7 +17,7 @@ export default class UserController {
       const usuario = await userService.updateUser(req.params.uid, req.body);
       res.json({ message: "Usuario actualizado", usuario });
     } catch (error) {
-      res.status(400).json({ error: error.message });
+      res.status(400).json({ status: "error", message: "Error al actualizar el usuario", error: error.message });
     }
   }
 
@@ -26,7 +26,7 @@ export default class UserController {
       await userService.deleteUser(req.params.uid);
       res.json({ message: "Usuario eliminado" });
     } catch (error) {
-      res.status(404).json({ error: error.message });
+      res.status(404).json({ status: "error", message: "Error al eliminar el usuario", error: error.message });
     }
   }
 }

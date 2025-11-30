@@ -2,6 +2,7 @@ import { Router } from "express";
 import SessionsController from "../controllers/sessions.controller.js";
 import { passportCall } from "../utils.js";
 import { auth } from "../middlewares/auth.js";
+import { requestPasswordReset, resetPassword } from "../controllers/password.controller.js";
 
 const router = Router();
 const controller = new SessionsController();
@@ -17,12 +18,6 @@ router.get(
 );
 
 router.get("/logout", (req, res) => controller.logout(req, res));
-
-import {
-  requestPasswordReset,
-  showResetPasswordForm,
-  resetPassword,
-} from "../controllers/password.controller.js";
 
 router.post("/forgot-password", requestPasswordReset);
 router.post("/reset-password/:token", resetPassword);

@@ -1,6 +1,5 @@
 import express from "express";
 import path from "path";
-import dotenv from "dotenv";
 import passport from "passport";
 import cookieParser from "cookie-parser";
 import session from "express-session";
@@ -16,13 +15,13 @@ import productsRouter from "./routes/products.router.js";
 import cartRouter from "./routes/carts.router.js";
 import sessionsRouter from "./routes/sessions.router.js";
 import viewsRouter from "./routes/views.router.js";
+import usersRouter from "./routes/users.router.js";
 import { userToView } from "./middlewares/auth.js";
 import { getOrCreateCart } from "./middlewares/cart.js";
 import ticketRouter from "./routes/tickets.router.js";
 
-dotenv.config();
 const app = express();
-const PORT = process.env.PORT;
+const PORT = config.PORT;
 
 app.use(cookieParser());
 app.use(express.json());
@@ -54,7 +53,8 @@ app.use(getOrCreateCart);
 app.use("/api/products", productsRouter);
 app.use("/api/carts", cartRouter);
 app.use("/api/sessions", sessionsRouter);
-app.use("/api/ticket", ticketRouter);
+app.use("/api/users", usersRouter);
+app.use("/api/tickets", ticketRouter);
 app.use("/", viewsRouter);
 
 app.listen(PORT, () =>

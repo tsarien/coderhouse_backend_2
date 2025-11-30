@@ -1,4 +1,3 @@
-// repository/carts.repository.js
 import Cart from "../dao/models/cart.model.js";
 
 export default class CartsRepository {
@@ -21,7 +20,6 @@ export default class CartsRepository {
   }
 
   async save(cart) {
-    // Si cart es un objeto lean, usar findByIdAndUpdate
     if (cart._id && !cart.save) {
       return await Cart.findByIdAndUpdate(
         cart._id,
@@ -31,7 +29,6 @@ export default class CartsRepository {
         .populate("products.product", "title price thumbnail code category stock")
         .lean();
     }
-    // Si es un documento de Mongoose, usar save()
     return await cart.save();
   }
 

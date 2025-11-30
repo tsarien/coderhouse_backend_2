@@ -2,7 +2,6 @@ async function updateCartLink() {
   const cartCount = document.getElementById("cart-count");
   if (!cartCount) return;
 
-  // Validar cartId de forma más eficiente
   if (!cartId || cartId === "null" || cartId === "undefined" || !cartId.trim()) {
     cartCount.style.display = "none";
     return;
@@ -30,7 +29,6 @@ async function updateCartLink() {
   }
 }
 
-// Solo ejecutar si cartId está definido
 if (typeof cartId !== "undefined" && cartId) {
   updateCartLink();
 }
@@ -60,7 +58,7 @@ async function updateQuantity(cartId, productId, currentQuantity, change) {
     }
   } catch (error) {
     console.error("Error:", error);
-    alert("Error al actualizar la cantidad. Verifica tu conexión.");
+    alert("Error al actualizar la cantidad.");
   }
 }
 
@@ -89,7 +87,7 @@ async function updateQuantityInput(cartId, productId, newQuantity) {
     }
   } catch (error) {
     console.error("Error:", error);
-    alert("Error al actualizar la cantidad. Verifica tu conexión.");
+    alert("Error al actualizar la cantidad.");
     location.reload();
   }
 }
@@ -112,7 +110,7 @@ async function removeFromCart(cartId, productId) {
     }
   } catch (error) {
     console.error("Error:", error);
-    alert("Error al eliminar el producto. Verifica tu conexión.");
+    alert("Error al eliminar el producto.");
   }
 }
 
@@ -134,7 +132,7 @@ async function clearCart(cartId) {
     }
   } catch (error) {
     console.error("Error:", error);
-    alert("Error al vaciar el carrito. Verifica tu conexión.");
+    alert("Error al vaciar el carrito.");
   }
 }
 
@@ -143,9 +141,8 @@ async function generateTicket() {
     return;
   }
 
-  // Obtener el botón y deshabilitarlo para evitar múltiples clicks
   const checkoutButton = document.querySelector(".btn-checkout");
-  const originalText = checkoutButton?.textContent || "🎉 Finalizar Compra";
+  const originalText = checkoutButton?.textContent || "Finalizar Compra";
   
   if (checkoutButton) {
     checkoutButton.disabled = true;
@@ -163,12 +160,10 @@ async function generateTicket() {
     const data = await response.json();
 
     if (response.ok) {
-      // Mostrar mensaje de éxito antes de redirigir
       if (checkoutButton) {
         checkoutButton.textContent = "✅ ¡Compra exitosa!";
         checkoutButton.style.opacity = "1";
       }
-      // Pequeño delay para que el usuario vea el feedback y luego redirigir al home
       setTimeout(() => {
         window.location.href = "/";
       }, 500);
@@ -189,6 +184,6 @@ async function generateTicket() {
       checkoutButton.style.opacity = "1";
       checkoutButton.style.cursor = "pointer";
     }
-    alert("Error al generar el ticket. Verifica tu conexión.");
+    alert("Error al generar el ticket.");
   }
 }

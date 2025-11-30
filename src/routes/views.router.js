@@ -2,6 +2,8 @@ import express from "express";
 import Product from "../dao/models/product.model.js";
 import Cart from "../dao/models/cart.model.js";
 import { auth } from "../middlewares/auth.js";
+import Ticket from "../dao/models/ticket.model.js";
+import { showResetPasswordForm } from "../controllers/password.controller.js";
 
 const viewsRouter = express.Router();
 
@@ -113,7 +115,6 @@ viewsRouter.get("/carts/:cid", async (req, res) => {
       return res.status(400).send("ID de carrito inválido");
     }
 
-    // Solo traer los campos necesarios del producto
     const cart = await Cart.findById(cid)
       .populate("products.product", "title price thumbnail code category")
       .lean();
@@ -121,8 +122,6 @@ viewsRouter.get("/carts/:cid", async (req, res) => {
     if (!cart) {
       return res.status(404).send("Carrito no encontrado");
     }
-
-    // Filtrar productos válidos y calcular subtotales en una sola pasada
     const productsWithSubtotal = [];
     let total = 0;
 
@@ -174,14 +173,10 @@ viewsRouter.get("/forgot-password", (req, res) => {
   res.status(200).render("forgotPassword");
 });
 
-import Ticket from "../dao/models/ticket.model.js";
-import { showResetPasswordForm } from "../controllers/password.controller.js";
-
 viewsRouter.get("/reset-password/:token", showResetPasswordForm);
 
 viewsRouter.get("/ticket/success/:tid", auth, async (req, res) => {
   try {
-    // Solo traer los campos necesarios
     const ticket = await Ticket.findById(req.params.tid)
       .populate("purchaser", "first_name last_name email")
       .populate("products.product", "title price thumbnail code category")
@@ -191,7 +186,6 @@ viewsRouter.get("/ticket/success/:tid", auth, async (req, res) => {
       return res.status(404).send("Ticket no encontrado");
     }
 
-    // Verificar que el ticket pertenece al usuario actual
     if (ticket.purchaser._id.toString() !== req.user._id) {
       return res.status(403).send("No tienes permiso para ver este ticket");
     }

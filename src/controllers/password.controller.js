@@ -1,4 +1,5 @@
 import crypto from "crypto";
+import bcrypt from "bcrypt";
 import User from "../dao/models/user.model.js";
 import { sendResetPasswordEmail } from "../service/email.service.js";
 
@@ -9,13 +10,12 @@ export const requestPasswordReset = async (req, res) => {
   if (!user)
     return res
       .status(404)
-      .json({ message: "No existe un usuario con ese correo." });
+      .json({ status: "error", message: "No existe un usuario con ese correo." });
 
-  // Crear token
   const token = crypto.randomBytes(32).toString("hex");
 
   user.resetPasswordToken = token;
-  user.resetPasswordExpires = Date.now() + 3600000; // 1 hora
+  user.resetPasswordExpires = Date.now() + 3600000;
   await user.save();
 
   const resetLink = `${req.protocol}://${req.get(
@@ -24,7 +24,7 @@ export const requestPasswordReset = async (req, res) => {
 
   await sendResetPasswordEmail(email, resetLink);
 
-  res.json({ message: "Correo enviado para restablecer la contraseña" });
+  res.json({ status:"success", message: "Correo enviado para restablecer la contraseña" });
 };
 
 export const showResetPasswordForm = async (req, res) => {
@@ -32,15 +32,13 @@ export const showResetPasswordForm = async (req, res) => {
 
   const user = await User.findOne({
     resetPasswordToken: token,
-    resetPasswordExpires: { $gt: Date.now() }, // token NO expirado
+    resetPasswordExpires: { $gt: Date.now() },
   });
 
-  if (!user) return res.status(400).send("Enlace inválido o expirado.");
+  if (!user) return res.status(400).json({ status:"error", message: "Enlace inválido o expirado." });
 
   res.render("resetPassword", { token });
 };
-
-import bcrypt from "bcrypt";
 
 export const resetPassword = async (req, res) => {
   const { token } = req.params;
@@ -51,25 +49,23 @@ export const resetPassword = async (req, res) => {
     resetPasswordExpires: { $gt: Date.now() },
   });
 
-  if (!user) return res.status(400).send("Token inválido o expirado.");
+  if (!user) return res.status(400).json({ status:"error", message: "Token inválido o expirado." });
 
-  // Validar que la nueva clave NO sea igual a la anterior
   const isSamePassword = await bcrypt.compare(password, user.password);
 
   if (isSamePassword)
     return res.status(400).json({
+      status:"error", 
       message: "La nueva contraseña no puede ser igual a la anterior.",
     });
 
-  // Hashear nueva contraseña
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  // Actualizar usuario
   user.password = hashedPassword;
   user.resetPasswordToken = undefined;
   user.resetPasswordExpires = undefined;
 
   await user.save();
 
-  res.json({ message: "Contraseña actualizada correctamente." });
+  res.json({ status:"success" , message: "Contraseña actualizada correctamente." });
 };

@@ -8,13 +8,10 @@ const userSchema = new mongoose.Schema({
   password: String,
   cart: { type: mongoose.Schema.Types.ObjectId, ref: "Cart", index: true },
   role: { type: String, default: "user", index: true },
-
-  // NUEVOS CAMPOS
   resetPasswordToken: String,
   resetPasswordExpires: Date,
 });
 
-// Índice compuesto para búsquedas frecuentes
 userSchema.index({ email: 1, cart: 1 });
 
 const User = mongoose.model("User", userSchema);

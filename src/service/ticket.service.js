@@ -1,4 +1,3 @@
-// service/ticket.service.js
 import TicketRepository from "../repository/ticket.repository.js";
 import CartsRepository from "../repository/carts.repository.js";
 
@@ -7,19 +6,16 @@ const cartRepository = new CartsRepository();
 
 export default class TicketService {
   async generateTicket(userId, cartId) {
-    // Obtener el carrito (ya viene con lean del repositorio)
     const cart = await cartRepository.getById(cartId);
 
     if (!cart || !cart.products || cart.products.length === 0) {
       throw new Error("El carrito está vacío o no existe.");
     }
 
-    // Filtrar productos válidos y calcular total en una sola pasada
     const productsDetail = [];
     let totalAmount = 0;
 
     for (const item of cart.products) {
-      // Verificar que el producto existe y tiene precio
       if (item.product && item.product.price && item.quantity > 0) {
         const subtotal = item.product.price * item.quantity;
         totalAmount += subtotal;
@@ -34,8 +30,6 @@ export default class TicketService {
     if (productsDetail.length === 0) {
       throw new Error("No hay productos válidos en el carrito.");
     }
-
-    // Crear ticket y vaciar carrito en paralelo
     const [newTicket] = await Promise.all([
       ticketRepository.create({
         purchaser: userId,

@@ -1,4 +1,3 @@
-// Reset Password Form Handler
 const resetPasswordForm = document.getElementById("resetPasswordForm");
 const messageDiv = document.getElementById("message");
 
@@ -12,7 +11,6 @@ if (resetPasswordForm) {
 
     messageDiv.innerHTML = "";
 
-    // Validar que las contraseñas coincidan
     if (password !== confirmPassword) {
       messageDiv.innerHTML = `
         <p style="color: var(--color-danger); font-weight: 600;">
@@ -22,7 +20,6 @@ if (resetPasswordForm) {
       return;
     }
 
-    // Deshabilitar botón y mostrar loading
     submitBtn.disabled = true;
     submitBtn.textContent = "Actualizando...";
 
@@ -45,7 +42,6 @@ if (resetPasswordForm) {
           </p>
         `;
         
-        // Redireccionar al login después de 2 segundos
         setTimeout(() => {
           window.location.href = "/login";
         }, 2000);
@@ -62,7 +58,7 @@ if (resetPasswordForm) {
       console.error("Error:", error);
       messageDiv.innerHTML = `
         <p style="color: var(--color-danger); font-weight: 600;">
-          ❌ Error de conexión. Verifica tu internet.
+          ❌ Error de conexión.
         </p>
       `;
       submitBtn.disabled = false;

@@ -1,4 +1,3 @@
-// repository/ticket.repository.js
 import Ticket from "../dao/models/ticket.model.js";
 
 export default class TicketRepository {

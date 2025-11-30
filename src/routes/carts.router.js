@@ -1,4 +1,3 @@
-// routes/carts.router.js
 import express from "express";
 import {
   getCarts,

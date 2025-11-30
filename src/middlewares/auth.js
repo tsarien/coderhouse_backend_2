@@ -1,10 +1,8 @@
 import jwt from "jsonwebtoken";
-import dotenv from "dotenv";
+import { config } from "../config/config.js";
 
-dotenv.config();
-
-const SECRET_KEY = process.env.JWT_SECRET;
-if (!SECRET_KEY) throw new Error("JWT_SECRET no está definido");
+const SECRET_KEY = config.JWT_SECRET;
+if (!SECRET_KEY) throw new Error("JWT_SECRET no está definido. Contacte al administrador.");
 
 export const auth = (permisos = []) => {
   return (req, res, next) => {
