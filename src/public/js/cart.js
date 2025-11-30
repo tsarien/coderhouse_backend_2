@@ -19,9 +19,10 @@ async function updateCartLink() {
     const data = await response.json();
 
     if (data.status === "success" && data.payload) {
-      const totalItems = Array.isArray(data.payload)
-        ? data.payload.reduce((sum, item) => sum + (item.quantity || 0), 0)
-        : 0;
+      // data.payload es el objeto cart, que tiene una propiedad products (array)
+      const products = data.payload.products || [];
+      const totalItems = products.reduce((sum, item) => sum + (item.quantity || 0), 0);
+      
       if (cartCount) {
         cartCount.textContent = totalItems;
         cartCount.style.display = totalItems > 0 ? "inline-block" : "none";

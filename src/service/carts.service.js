@@ -39,7 +39,10 @@ export default class CartsService {
     const cart = await this.getCart(cid);
     if (!cart) return { error: "CartNotFound" };
 
-    const item = cart.products.find((p) => p.product.toString() === pid);
+    const item = cart.products.find((p) => {
+      const productId = p.product._id ? p.product._id.toString() : p.product.toString();
+      return productId === pid;
+    });
     if (!item) return { error: "ProductNotInCart" };
 
     item.quantity = quantity;
@@ -52,7 +55,10 @@ export default class CartsService {
     if (!cart) return { error: "CartNotFound" };
 
     const initialLength = cart.products.length;
-    cart.products = cart.products.filter((p) => p.product.toString() !== pid);
+    cart.products = cart.products.filter((p) => {
+      const productId = p.product._id ? p.product._id.toString() : p.product.toString();
+      return productId !== pid;
+    });
 
     if (cart.products.length === initialLength)
       return { error: "ProductNotInCart" };
