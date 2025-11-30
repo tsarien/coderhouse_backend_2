@@ -8,14 +8,16 @@ export default class TicketRepository {
 
   async findById(id) {
     return await Ticket.findById(id)
-      .populate("purchaser")
-      .populate("products.product");
+      .populate("purchaser", "first_name last_name email")
+      .populate("products.product", "title price thumbnail code category")
+      .lean();
   }
 
   async findAll() {
     return await Ticket.find()
-      .populate("purchaser")
-      .populate("products.product");
+      .populate("purchaser", "first_name last_name email")
+      .populate("products.product", "title price thumbnail code category")
+      .lean();
   }
 
   async delete(id) {
@@ -26,6 +28,9 @@ export default class TicketRepository {
     return await Ticket.findByIdAndUpdate(id, data, {
       new: true,
       runValidators: true,
-    });
+    })
+      .populate("purchaser", "first_name last_name email")
+      .populate("products.product", "title price thumbnail code category")
+      .lean();
   }
 }

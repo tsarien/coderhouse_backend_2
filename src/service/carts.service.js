@@ -20,50 +20,63 @@ export default class CartsService {
   }
 
   async addProduct(cid, pid, quantity = 1) {
-    const cart = await this.getCart(cid);
+    // Verificar que el producto existe (solo verificar existencia)
+    const productExists = await Product.exists({ _id: pid });
+    if (!productExists) return { error: "ProductNotFound" };
+
+    // Obtener el carrito (sin lean para poder actualizarlo directamente)
+    const cart = await this.cartsRepository.getById(cid, false);
     if (!cart) return { error: "CartNotFound" };
 
-    const product = await Product.findById(pid);
-    if (!product) return { error: "ProductNotFound" };
+    // Buscar si el producto ya está en el carrito
+    const itemIndex = cart.products.findIndex((p) => {
+      const productId = p.product._id?.toString() || p.product.toString();
+      return productId === pid;
+    });
 
-    const item = cart.products.find((p) => p.product.toString() === pid);
+    if (itemIndex >= 0) {
+      cart.products[itemIndex].quantity += quantity;
+    } else {
+      cart.products.push({ product: pid, quantity });
+    }
 
-    if (item) item.quantity += quantity;
-    else cart.products.push({ product: pid, quantity });
-
-    const updated = await this.cartsRepository.save(cart);
-    return updated;
+    const saved = await cart.save();
+    // Retornar con populate para consistencia
+    return await this.cartsRepository.getById(cid);
   }
 
   async updateQuantity(cid, pid, quantity) {
-    const cart = await this.getCart(cid);
+    const cart = await this.cartsRepository.getById(cid, false);
     if (!cart) return { error: "CartNotFound" };
 
-    const item = cart.products.find((p) => {
-      const productId = p.product._id ? p.product._id.toString() : p.product.toString();
+    const itemIndex = cart.products.findIndex((p) => {
+      const productId = p.product._id?.toString() || p.product.toString();
       return productId === pid;
     });
-    if (!item) return { error: "ProductNotInCart" };
 
-    item.quantity = quantity;
+    if (itemIndex < 0) return { error: "ProductNotInCart" };
 
-    return await this.cartsRepository.save(cart);
+    cart.products[itemIndex].quantity = quantity;
+    await cart.save();
+    return await this.cartsRepository.getById(cid);
   }
 
   async deleteProduct(cid, pid) {
-    const cart = await this.getCart(cid);
+    const cart = await this.cartsRepository.getById(cid, false);
     if (!cart) return { error: "CartNotFound" };
 
     const initialLength = cart.products.length;
     cart.products = cart.products.filter((p) => {
-      const productId = p.product._id ? p.product._id.toString() : p.product.toString();
+      const productId = p.product._id?.toString() || p.product.toString();
       return productId !== pid;
     });
 
-    if (cart.products.length === initialLength)
+    if (cart.products.length === initialLength) {
       return { error: "ProductNotInCart" };
+    }
 
-    return await this.cartsRepository.save(cart);
+    await cart.save();
+    return await this.cartsRepository.getById(cid);
   }
 
   async clearCart(cid) {

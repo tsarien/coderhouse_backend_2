@@ -6,8 +6,15 @@ const ticketService = new TicketService();
 export default class TicketController {
   async generate(req, res) {
     try {
-      const userId = req.user._id;
-      const cartId = req.user.cart;
+      const userId = req.user?._id;
+      const cartId = req.user?.cart;
+
+      if (!userId || !cartId) {
+        return res.status(400).json({
+          status: "error",
+          error: "Usuario no autenticado o carrito no encontrado",
+        });
+      }
 
       const ticket = await ticketService.generateTicket(userId, cartId);
 
@@ -17,7 +24,11 @@ export default class TicketController {
         payload: ticket,
       });
     } catch (error) {
-      res.status(500).json({ status: "error", error: error.message });
+      const statusCode = error.message.includes("vacío") ? 400 : 500;
+      res.status(statusCode).json({
+        status: "error",
+        error: error.message,
+      });
     }
   }
 

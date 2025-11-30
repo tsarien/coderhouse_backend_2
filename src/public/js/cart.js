@@ -1,42 +1,37 @@
 async function updateCartLink() {
   const cartCount = document.getElementById("cart-count");
+  if (!cartCount) return;
 
-  if (
-    !cartId ||
-    cartId === "null" ||
-    cartId === "undefined" ||
-    cartId.trim() === ""
-  ) {
-    console.warn("cartId no está definido, no se puede actualizar el carrito");
-    if (cartCount) {
-      cartCount.style.display = "none";
-    }
+  // Validar cartId de forma más eficiente
+  if (!cartId || cartId === "null" || cartId === "undefined" || !cartId.trim()) {
+    cartCount.style.display = "none";
     return;
   }
 
   try {
     const response = await fetch(`/api/carts/${cartId}`);
+    if (!response.ok) throw new Error("Error en la respuesta");
+    
     const data = await response.json();
-
-    if (data.status === "success" && data.payload) {
-      // data.payload es el objeto cart, que tiene una propiedad products (array)
-      const products = data.payload.products || [];
-      const totalItems = products.reduce((sum, item) => sum + (item.quantity || 0), 0);
+    if (data.status === "success" && data.payload?.products) {
+      const totalItems = data.payload.products.reduce(
+        (sum, item) => sum + (item.quantity || 0),
+        0
+      );
       
-      if (cartCount) {
-        cartCount.textContent = totalItems;
-        cartCount.style.display = totalItems > 0 ? "inline-block" : "none";
-      }
+      cartCount.textContent = totalItems;
+      cartCount.style.display = totalItems > 0 ? "inline-block" : "none";
+    } else {
+      cartCount.style.display = "none";
     }
   } catch (error) {
     console.error("Error al actualizar carrito:", error);
-    if (cartCount) {
-      cartCount.style.display = "none";
-    }
+    cartCount.style.display = "none";
   }
 }
 
-if (typeof cartId !== "undefined") {
+// Solo ejecutar si cartId está definido
+if (typeof cartId !== "undefined" && cartId) {
   updateCartLink();
 }
 
@@ -148,6 +143,17 @@ async function generateTicket() {
     return;
   }
 
+  // Obtener el botón y deshabilitarlo para evitar múltiples clicks
+  const checkoutButton = document.querySelector(".btn-checkout");
+  const originalText = checkoutButton?.textContent || "🎉 Finalizar Compra";
+  
+  if (checkoutButton) {
+    checkoutButton.disabled = true;
+    checkoutButton.textContent = "⏳ Procesando...";
+    checkoutButton.style.opacity = "0.6";
+    checkoutButton.style.cursor = "not-allowed";
+  }
+
   try {
     const response = await fetch("/api/ticket/generate", {
       method: "POST",
@@ -157,13 +163,32 @@ async function generateTicket() {
     const data = await response.json();
 
     if (response.ok) {
-      // Redirigir a página de éxito con el ID del ticket
-      window.location.href = `/ticket/success/${data.payload._id}`;
+      // Mostrar mensaje de éxito antes de redirigir
+      if (checkoutButton) {
+        checkoutButton.textContent = "✅ ¡Compra exitosa!";
+        checkoutButton.style.opacity = "1";
+      }
+      // Pequeño delay para que el usuario vea el feedback y luego redirigir al home
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 500);
     } else {
+      if (checkoutButton) {
+        checkoutButton.disabled = false;
+        checkoutButton.textContent = originalText;
+        checkoutButton.style.opacity = "1";
+        checkoutButton.style.cursor = "pointer";
+      }
       alert(`Error: ${data.error || "No se pudo generar el ticket"}`);
     }
   } catch (error) {
     console.error("Error:", error);
+    if (checkoutButton) {
+      checkoutButton.disabled = false;
+      checkoutButton.textContent = originalText;
+      checkoutButton.style.opacity = "1";
+      checkoutButton.style.cursor = "pointer";
+    }
     alert("Error al generar el ticket. Verifica tu conexión.");
   }
 }

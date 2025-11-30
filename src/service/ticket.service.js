@@ -7,30 +7,35 @@ const cartRepository = new CartsRepository();
 
 export default class TicketService {
   async generateTicket(userId, cartId) {
-    // Obtener el carrito con lean para mejor performance
+    // Obtener el carrito (ya viene con lean del repositorio)
     const cart = await cartRepository.getById(cartId);
 
-    if (!cart || cart.products.length === 0) {
+    if (!cart || !cart.products || cart.products.length === 0) {
       throw new Error("El carrito está vacío o no existe.");
     }
 
-    // Generar array de productos y monto total
-    let totalAmount = 0;
+    // Filtrar productos válidos y calcular total en una sola pasada
     const productsDetail = [];
+    let totalAmount = 0;
 
     for (const item of cart.products) {
-      if (item.product.price && item.quantity) {
+      // Verificar que el producto existe y tiene precio
+      if (item.product && item.product.price && item.quantity > 0) {
         const subtotal = item.product.price * item.quantity;
         totalAmount += subtotal;
 
         productsDetail.push({
-          product: item.product._id,
+          product: item.product._id || item.product,
           quantity: item.quantity,
         });
       }
     }
 
-    // Crear ticket y vaciar carrito en paralelo para mayor velocidad
+    if (productsDetail.length === 0) {
+      throw new Error("No hay productos válidos en el carrito.");
+    }
+
+    // Crear ticket y vaciar carrito en paralelo
     const [newTicket] = await Promise.all([
       ticketRepository.create({
         purchaser: userId,

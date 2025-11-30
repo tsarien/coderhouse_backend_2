@@ -108,32 +108,37 @@ viewsRouter.get("/products/:pid", async (req, res) => {
 
 viewsRouter.get("/carts/:cid", async (req, res) => {
   try {
-    if (!req.params.cid || req.params.cid.trim() === "") {
+    const cid = req.params.cid?.trim();
+    if (!cid) {
       return res.status(400).send("ID de carrito inválido");
     }
 
-    const cart = await Cart.findById(req.params.cid)
-      .populate("products.product")
+    // Solo traer los campos necesarios del producto
+    const cart = await Cart.findById(cid)
+      .populate("products.product", "title price thumbnail code category")
       .lean();
 
     if (!cart) {
       return res.status(404).send("Carrito no encontrado");
     }
 
-    const validProducts = cart.products.filter((item) => item.product !== null);
+    // Filtrar productos válidos y calcular subtotales en una sola pasada
+    const productsWithSubtotal = [];
+    let total = 0;
 
-    const productsWithSubtotal = validProducts.map((item) => {
-      const subtotal = item.product.price * item.quantity;
-      return { ...item, subtotal: subtotal.toFixed(2) };
-    });
-
-    const total = productsWithSubtotal.reduce(
-      (sum, item) => sum + parseFloat(item.subtotal),
-      0
-    );
+    for (const item of cart.products) {
+      if (item.product && item.product.price && item.quantity > 0) {
+        const subtotal = item.product.price * item.quantity;
+        total += subtotal;
+        productsWithSubtotal.push({
+          ...item,
+          subtotal: subtotal.toFixed(2),
+        });
+      }
+    }
 
     res.render("cart", {
-      cartId: req.params.cid,
+      cartId: cid,
       products: productsWithSubtotal,
       total: total.toFixed(2),
       hasProducts: productsWithSubtotal.length > 0,
@@ -176,9 +181,10 @@ viewsRouter.get("/reset-password/:token", showResetPasswordForm);
 
 viewsRouter.get("/ticket/success/:tid", auth, async (req, res) => {
   try {
+    // Solo traer los campos necesarios
     const ticket = await Ticket.findById(req.params.tid)
-      .populate("purchaser")
-      .populate("products.product")
+      .populate("purchaser", "first_name last_name email")
+      .populate("products.product", "title price thumbnail code category")
       .lean();
 
     if (!ticket) {
