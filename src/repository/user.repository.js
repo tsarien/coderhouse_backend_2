@@ -2,7 +2,7 @@ import User from "../dao/models/user.model.js";
 
 export default class UserRepository {
   async findByEmail(email) {
-    return await User.findOne({ email });
+    return await User.findOne({ email }).select('+cart');
   }
 
   async findById(id) {

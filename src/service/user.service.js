@@ -1,7 +1,9 @@
 import UserRepository from "../repository/user.repository.js";
+import CartsRepository from "../repository/carts.repository.js";
 import { generaHash, validaPass } from "../utils.js";
 
 const userRepository = new UserRepository();
+const cartsRepository = new CartsRepository();
 
 export default class UserService {
   async register(data) {
@@ -14,12 +16,15 @@ export default class UserService {
     const existe = await userRepository.findByEmail(email);
     if (existe) throw new Error(`El email ${email} ya está registrado.`);
 
+    const nuevoCarrito = await cartsRepository.createCart();
+
     const nuevo = await userRepository.createUser({
       first_name,
       last_name,
       email,
       age,
       password: generaHash(password),
+      cart: nuevoCarrito._id,
     });
 
     const userObj = nuevo.toObject();
@@ -33,6 +38,12 @@ export default class UserService {
 
     const esValido = validaPass(password, usuario.password);
     if (!esValido) throw new Error("Credenciales inválidas.");
+
+    if (!usuario.cart) {
+      const nuevoCarrito = await cartsRepository.createCart();
+      await userRepository.updateUser(usuario._id, { cart: nuevoCarrito._id });
+      usuario.cart = nuevoCarrito._id;
+    }
 
     const userObj = usuario.toObject();
     delete userObj.password;
