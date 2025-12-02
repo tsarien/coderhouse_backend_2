@@ -152,7 +152,7 @@ async function generateTicket() {
   }
 
   try {
-    const response = await fetch("/api/ticket/generate", {
+    const response = await fetch("/api/tickets/generate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
     });
