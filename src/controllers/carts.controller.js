@@ -14,7 +14,7 @@ export const getCarts = async (req, res) => {
 export const createCart = async (req, res) => {
   try {
     const cart = await cartsService.createCart();
-    res.status(201).json({ status: "success", payload: cart });
+    res.status(201).json({ status: "success", message: "Carrito creado correctamente", payload: cart });
   } catch (error) {
     res.status(500).json({ status: "error", message: "Error al crear el carrito", error: error.message });
   }
@@ -28,7 +28,7 @@ export const getCartById = async (req, res) => {
         .status(404)
         .json({ status: "error", message: "Carrito no encontrado" });
 
-    res.json({ status: "success", payload: cart });
+    res.json({ status: "success", message: "Carrito obtenido correctamente", payload: cart });
   } catch (error) {
     res.status(500).json({ status: "error", message: "Error al obtener el carrito por ID", error: error.message });
   }
